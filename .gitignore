@@ -46,4 +46,4 @@ frontend/android/app/release
 
 # Backend (para cuando lleguemos ahí)
 backend/target/
-backend/.mvn/
+backend/.mvn/.vscode/
