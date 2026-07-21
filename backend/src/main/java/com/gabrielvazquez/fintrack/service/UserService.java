@@ -28,4 +28,11 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
+    public User login(String email, String rawPassword) {
+        User user = findByEmail(email);
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Invalid credentials");
+        }
+        return user;
+    }
 }
