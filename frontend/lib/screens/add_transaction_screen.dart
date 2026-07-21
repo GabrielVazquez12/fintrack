@@ -17,6 +17,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   final _amountCtrl = TextEditingController();
   TransactionType _type = TransactionType.expense;
   String _categoryId = Category.expenseCategories.first.id;
+  String? _accountId;
   bool _saving = false;
 
   List<Category> get _categories =>
@@ -31,6 +32,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       );
       return;
     }
+    if (_accountId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selecciona una cuenta')),
+      );
+      return;
+    }
     setState(() => _saving = true);
     final tx = FinanceTransaction(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -39,7 +46,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       type: _type,
       categoryId: _categoryId,
       date: DateTime.now(),
-      accountId: '1',
+      accountId: _accountId!,
     );
     await ref.read(transactionsProvider.notifier).addTransaction(tx);
     if (!mounted) return;
@@ -48,9 +55,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final accounts = ref.watch(accountsProvider).valueOrNull ?? [];
+    _accountId ??= accounts.isNotEmpty ? accounts.first.id : null;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Nuevo movimiento')),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,6 +88,15 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
             const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              initialValue: _accountId,
+              decoration: const InputDecoration(labelText: 'Cuenta'),
+              items: accounts
+                  .map((a) => DropdownMenuItem(value: a.id, child: Text(a.name)))
+                  .toList(),
+              onChanged: (value) => setState(() => _accountId = value),
+            ),
+            const SizedBox(height: 16),
             Text('Categoría', style: Theme.of(context).textTheme.labelSmall),
             const SizedBox(height: 8),
             Wrap(
@@ -94,17 +113,17 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 );
               }).toList(),
             ),
-            const Spacer(),
+            const SizedBox(height: 28),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _saving ? null : _save,
                 child: _saving
                     ? const SizedBox(
-                  height: 18,
-                  width: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                )
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
                     : const Text('Guardar'),
               ),
             ),

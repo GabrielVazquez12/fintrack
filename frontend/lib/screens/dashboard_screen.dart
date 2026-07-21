@@ -7,6 +7,7 @@ import '../widgets/spending_chart.dart';
 import '../widgets/transaction_tile.dart';
 import 'add_transaction_screen.dart';
 import 'transaction_screen.dart';
+import 'create_account_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -16,7 +17,42 @@ class DashboardScreen extends ConsumerWidget {
     final totalBalance = ref.watch(totalBalanceProvider);
     final txState = ref.watch(transactionsProvider);
     final spending = ref.watch(spendingByCategoryProvider);
+    final accountsState = ref.watch(accountsProvider);
+    final hasNoAccounts = accountsState.valueOrNull?.isEmpty ?? false;
 
+    if (hasNoAccounts) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('FinTrack')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Aún no tienes ninguna cuenta',
+                  style: Theme.of(context).textTheme.titleLarge,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Crea una para empezar a registrar tus movimientos.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const CreateAccountScreen()),
+                  ),
+                  child: const Text('Crear cuenta'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     final income = (txState.valueOrNull ?? [])
         .where((t) => t.type == TransactionType.income)
         .fold(0.0, (sum, t) => sum + t.amount);
