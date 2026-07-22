@@ -3,9 +3,9 @@ spring:
     name: fintrack
 
   datasource:
-    url: jdbc:mysql://localhost:3306/fintrack_db
-    username: fintrack_user
-    password: 1202
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/fintrack_db}
+    username: ${SPRING_DATASOURCE_USERNAME:fintrack_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:1202}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
