@@ -1,0 +1,38 @@
+services:
+  db:
+    image: mariadb:11
+    container_name: fintrack-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: fintrack_db
+      MARIADB_USER: fintrack_user
+      MARIADB_PASSWORD: 1202
+      MARIADB_ROOT_PASSWORD: 2003
+    ports:
+      - "3306:3306"
+    volumes:
+      - fintrack_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fintrack-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/fintrack_db
+      SPRING_DATASOURCE_USERNAME: fintrack_user
+      SPRING_DATASOURCE_PASSWORD: 1202
+    ports:
+      - "8080:8080"
+
+volumes:
+  fintrack_db_data:
