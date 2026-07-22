@@ -5,7 +5,7 @@ import '../models/transaction.dart';
 
 class ApiService {
   // Your computer's local IP — must be on the same WiFi as the phone.
-  static const String baseUrl = 'http://192.168.1.37:8080/api';
+  static const String baseUrl = 'http://18.117.111.135:8080/api';
 
   final Dio _dio = Dio(BaseOptions(baseUrl: baseUrl));
   String? _token;
